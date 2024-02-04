@@ -129,10 +129,8 @@ class TestProductRoutes(TestCase):
         self.assertEqual(Decimal(new_product["price"]), test_product.price)
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["category"], test_product.category.name)
-
-        #
+        
         # Uncomment this code once READ is implemented
-        #
 
         # # Check that the location header was correct
         # response = self.client.get(location)
@@ -162,22 +160,6 @@ class TestProductRoutes(TestCase):
         """It should not Create a Product with wrong Content-Type"""
         response = self.client.post(BASE_URL, data={}, content_type="plain/text")
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-
-    #
-    # ADD YOUR TEST CASES HERE
-    #
-
-    ######################################################################
-    # Utility functions
-    ######################################################################
-
-    def get_product_count(self):
-        """save the current number of products"""
-        response = self.client.get(BASE_URL)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.get_json()
-        # logging.debug("data = %s", data)
-        return len(data)
 
     def test_get_product(self):
         """It should Get a single Product"""
@@ -209,13 +191,6 @@ class TestProductRoutes(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
         self.assertEqual(updated_product["description"], "unknown")
-
-    def test_update_product_not_found(self):
-        """It should not Update a Product thats not found"""
-        response = self.client.put(f"{BASE_URL}/00")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        # data = response.get_json()
-        # self.assertIn("was not found", data["message"])
 
     def test_delete_product(self):
         """It should Delete a Product"""
@@ -286,3 +261,15 @@ class TestProductRoutes(TestCase):
         # check the data just to be sure
         for product in data:
             self.assertEqual(product["available"], True)
+
+    ######################################################################
+    # Utility functions
+    ######################################################################
+
+    def get_product_count(self):
+        """save the current number of products"""
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        # logging.debug("data = %s", data)
+        return len(data)

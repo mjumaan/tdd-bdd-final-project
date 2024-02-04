@@ -217,7 +217,7 @@ class Product(db.Model):
         logger.info("Processing price query for %s ...", price)
         price_value = price
         if isinstance(price, str):
-            price_value = Decimal(price.strip(' "'))
+            price_value = Decimal(price.strip(' '))
         return cls.query.filter(cls.price == price_value)
 
     @classmethod

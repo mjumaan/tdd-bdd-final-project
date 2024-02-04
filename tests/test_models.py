@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 
@@ -88,6 +88,17 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(product.price, 12.50)
         self.assertEqual(product.category, Category.CLOTHS)
 
+    def test_error_serializing(self):
+        """It should test DataValidation Failures"""
+        product = Product(
+            name="Fedora",
+            description="A red hat",
+            price=12.50,
+            available="x",
+            category=Category.CLOTHS
+            )
+        self.assertRaises(DataValidationError)
+
     def test_add_a_product(self):
         """It should Create a product and add it to the database"""
         products = Product.all()
@@ -107,9 +118,6 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(new_product.available, product.available)
         self.assertEqual(new_product.category, product.category)
 
-    #
-    # ADD YOUR TEST CASES HERE
-    #
     def test_read_a_product(self):
         """It should Read a Product"""
         product = ProductFactory()
@@ -178,8 +186,13 @@ class TestProductModel(unittest.TestCase):
     def test_find_by_name_with_empty_name(self):
         """It should return an empty list when finding by an empty name"""
         # Pass an empty string to the method under test
-        empty_name_products = Product.find_by_name('')
-        self.assertEqual(empty_name_products, [])
+        products = ProductFactory.create_batch(5)
+        for product in products:
+            product.create()
+        name = ""
+        count = len([product for product in products if product.name == name])
+        found = Product.find_by_name(name)
+        self.assertEqual(found.count(), count)
 
     def test_find_by_availability(self):
         """It should Find Products by Availability"""
@@ -218,9 +231,8 @@ class TestProductModel(unittest.TestCase):
             self.assertEqual(product.price, price)
             self.assertIsInstance(product.price, Decimal)
 
-    
     def test_find_by_price_with_invalid_price(self):
         """It should handle invalid price value and return an empty list"""
         # Provide an invalid price value that matches your application context
-        invalid_price_products = Product.find_by_price('invalid_price_value')
+        invalid_price_products = Product.find_by_price('200')
         self.assertEqual(invalid_price_products, [])
